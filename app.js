@@ -9,6 +9,7 @@ var http = require('http');
 
 var Pallet_Agent = require('./Pallet_Agent');
 var WS_Agent = require('./WS_Agent');
+
 var index = require('./routes/index');
 var users = require('./routes/users');
 
@@ -31,35 +32,66 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/users', users);
-var WS1 = new WS_Agent('WS1', 'paperLoader');
-var WS8 = new WS_Agent('WS8','red');
-var WS9 = new WS_Agent('WS9','green');
 
-var WS = [WS8,WS9];
+var WS1 = new WS_Agent('WS1', 'paperLoader', 'WS2', 4001);
+var WS2 = new WS_Agent('WS2', 'red', 'WS3', 4002);
+var WS3 = new WS_Agent('WS3', 'green', 'WS4', 4003);
+var WS4 = new WS_Agent('WS4', 'blue', 'WS5', 4004);
+var WS5 = new WS_Agent('WS5', 'red', 'WS6', 4005);
+var WS6 = new WS_Agent('WS6', 'green', 'WS6', 4006);
+var WS7 = new WS_Agent('WS7', 'palletLoader', 'WS8', 4007);
+var WS8 = new WS_Agent('WS8','blue', 'WS9', 4008);
+var WS9 = new WS_Agent('WS9','red', 'WS10', 4009);
+var WS10 = new WS_Agent('WS10', 'green', 'WS11', 4010);
+var WS11 = new WS_Agent('WS11', 'blue', 'WS12', 4011);
+var WS12 = new WS_Agent('WS12', 'red', 'WS1', 4012);
+
+//setTimeout(function () {
+  WS1.runServer();
+  WS2.runServer();
+  WS3.runServer();
+  WS4.runServer();
+  WS5.runServer();
+  WS6.runServer();
+  WS7.runServer();
+  WS8.runServer();
+  WS9.runServer();
+  WS10.runServer();
+  WS11.runServer();
+  WS12.runServer();
+//},5000)
+
+
+var WS = [WS1,WS2,WS3,WS4,WS5,WS6,WS7,WS8,WS9,WS10,WS11,WS12];
 var path = [WS1.getName()];
-
+var framePath = [];
+var screenPath = [];
+var keyPath = [];
 function searchCapability(frameColor, screenColor, keyColor){
-  for(var i=0; i < 2; i++){
+  for(var i=0; i < 12; i++){
     if(WS[i].getCapability() == frameColor){
       var frameWS = WS[i].getName();
-      path.push(frameWS);
+      framePath.push(frameWS);
     }
     if(WS[i].getCapability() == screenColor){
       var screenWS = WS[i].getName();
-      path.push(screenWS);
+      screenPath.push(screenWS);
     }
     if(WS[i].getCapability() == keyColor){
       var keyWS = WS[i].getName();
-      path.push(keyWS);
+      keyPath.push(keyWS);
     }
   }
+  path.push(framePath);
+  path.push(screenPath);
+  path.push(keyPath);
   return path;
 }
 function simRequest(url) {
   request({
     url: url,
     method: "POST",
-    body: JSON.stringify({destUrl:'http://hostname'}),
+    body: JSON.stringify(getPallet()),
     headers:{'Content-Type':'application/json'}
   },function (err, res, body) {});
 }
@@ -71,50 +103,39 @@ function getPallet() {
   return currentPallet;
 }
 
-
 app.post('/notifs', function (req, res) {
   console.log(req.body);
   var event = req.body.id;
-  var sender ="";
+  var sender = req.body.senderID;
 
-  if(event == "PalletLoaded"){
-    var palletID = req.body.payload.PalletID;
-    var pallet = new Pallet_Agent(palletID,2,'red',3,'green',1,'green');
-    pallet.setPath(searchCapability(pallet.getFrameColor(),pallet.getScreenColor(),pallet.getKeyColor()));
-    setPallet(pallet);
-    var url = 'http://localhost:3000/RTU/SimCNV7/services/TransZone35';
-    simRequest(url);
-    //console.log(typeof (pallet));
-  }
   switch (event) {
-    case "Z1_Changed": {
-      if (req.body.payload.PalletID != -1) {
-        sender = req.body.senderID;
-        var currentPallet = getPallet();
-        var destination = currentPallet.getPath()[0];
-        console.log(destination.substr(-1));
-        if((destination.substr(-1))=== (sender.substr(6,2))){
-          console.log("reached");
-        }else{
-          console.log(sender);
-          var url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone14';
-          setTimeout(function(){simRequest(url)},4000);
-        }
-      }
+    case "PalletLoaded": {
+      var palletID = req.body.payload.PalletID;
+      var pallet = new Pallet_Agent(palletID,2,'red',3,'green',1,'blue');
+      pallet.setPath(searchCapability(pallet.getFrameColor(),pallet.getScreenColor(),pallet.getKeyColor()));
+      setPallet(pallet);
+      var url = 'http://localhost:4007/pallet';
+      simRequest(url);
       break;
     }
-    case "Z4_Changed": {
-      sender = req.body.senderID;
-      //console.log(sender);
+    case "Z3_Changed": {
       if (req.body.payload.PalletID != -1) {
-        var url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone45';
-        setTimeout(function(){simRequest(url)},4000);
+          var url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone35';
+          setTimeout(function(){simRequest(url)},4000);
       }
       break;
     }
   }
-res.end();
+  res.end();
 });
+
+request.post('http://localhost:3000/RTU/SimROB7/events/PalletLoaded/notifs',{form:{destUrl:"http://localhost:"+port+"/notifs"}}, function(err,httpResponse,body){});
+request.post('http://localhost:3000/RTU/SimROB7/events/PalletUnloaded/notifs',{form:{destUrl:"http://localhost:"+port+"/notifs"}}, function(err,httpResponse,body){});
+request.post('http://localhost:3000/RTU/SimCNV7/events/Z1_Changed/notifs',{form:{destUrl:"http://localhost:"+port+"/notifs"}}, function(err,httpResponse,body){});
+request.post('http://localhost:3000/RTU/SimCNV7/events/Z2_Changed/notifs',{form:{destUrl:"http://localhost:"+port+"/notifs"}}, function(err,httpResponse,body){});
+request.post('http://localhost:3000/RTU/SimCNV7/events/Z3_Changed/notifs',{form:{destUrl:"http://localhost:"+port+"/notifs"}}, function(err,httpResponse,body){});
+request.post('http://localhost:3000/RTU/SimCNV7/events/Z5_Changed/notifs',{form:{destUrl:"http://localhost:"+port+"/notifs"}}, function(err,httpResponse,body){});
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
@@ -132,40 +153,6 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-
-//subscribing to the events from the SIMULATOR
-request.post('http://localhost:3000/RTU/SimROB7/events/PalletLoaded/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-request.post('http://localhost:3000/RTU/SimROB7/events/PalletUnloaded/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-request.post('http://localhost:3000/RTU/SimCNV7/events/Z1_Changed/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-request.post('http://localhost:3000/RTU/SimCNV7/events/Z2_Changed/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-request.post('http://localhost:3000/RTU/SimCNV7/events/Z3_Changed/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-request.post('http://localhost:3000/RTU/SimCNV7/events/Z5_Changed/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-
-request.post('http://localhost:3000/RTU/SimROB1/events/PaperLoaded/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-request.post('http://localhost:3000/RTU/SimROB1/events/PaperUnloaded/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-request.post('http://localhost:3000/RTU/SimCNV1/events/Z1_Changed/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-request.post('http://localhost:3000/RTU/SimCNV1/events/Z2_Changed/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-request.post('http://localhost:3000/RTU/SimCNV1/events/Z3_Changed/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-request.post('http://localhost:3000/RTU/SimCNV1/events/Z5_Changed/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-
-for(var j=2; j<7; j++){
-  request.post('http://localhost:3000/RTU/SimCNV'+j+'/events/Z1_Changed/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-  request.post('http://localhost:3000/RTU/SimCNV'+j+'/events/Z2_Changed/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-  request.post('http://localhost:3000/RTU/SimCNV'+j+'/events/Z3_Changed/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-  request.post('http://localhost:3000/RTU/SimCNV'+j+'/events/Z4_Changed/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-  request.post('http://localhost:3000/RTU/SimCNV'+j+'/events/Z5_Changed/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-  request.post('http://localhost:3000/RTU/SimROB'+j+'/events/DrawStartExecution/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-  request.post('http://localhost:3000/RTU/SimROB'+j+'/events/DrawEndExecution/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-}
-for(var j=8; j<13; j++){
-  request.post('http://localhost:3000/RTU/SimCNV'+j+'/events/Z1_Changed/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-  request.post('http://localhost:3000/RTU/SimCNV'+j+'/events/Z2_Changed/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-  request.post('http://localhost:3000/RTU/SimCNV'+j+'/events/Z3_Changed/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-  request.post('http://localhost:3000/RTU/SimCNV'+j+'/events/Z4_Changed/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-  request.post('http://localhost:3000/RTU/SimCNV'+j+'/events/Z5_Changed/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-  request.post('http://localhost:3000/RTU/SimROB'+j+'/events/DrawStartExecution/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-  request.post('http://localhost:3000/RTU/SimROB'+j+'/events/DrawEndExecution/notifs',{form:{destUrl:"http://localhost:4000/notifs"}}, function(err,httpResponse,body){});
-}
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -187,7 +174,7 @@ app.use(function(err, req, res, next) {
 
 //server at localhost:4000
 app.listen(port, hostname, function(){
-  console.log(`Server running at http://${hostname}:${port}/`);
+  console.log(`Main Server running at http://${hostname}:${port}/`);
 });
 
 module.exports = app;
