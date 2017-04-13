@@ -148,7 +148,7 @@ WS_Agent.prototype.runServer = function () {
                                 simRequest(url);
                                 url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone35';
                                 setTimeout(function(){
-                                   simRequest(url)
+                                    simRequest(url)
                                 }.bind(this),8000);
                             },4000);
                             break;

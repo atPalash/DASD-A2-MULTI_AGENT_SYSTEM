@@ -111,19 +111,65 @@ function getPallet() {
 
 app.post('/WS7notifs', function (req, res) {
     var palletID = req.body.payload.PalletID;
-    var pallet = new Pallet_Agent(palletID,2,'red',5,'green',8,'blue',0);
-    pallet.setPath(searchCapability(pallet.getFrameColor(),pallet.getScreenColor(),pallet.getKeyColor()));
-    setPallet(pallet);
-    var url = 'http://localhost:3000/RTU/SimCNV7/services/TransZone35';
-    setTimeout(function(){
-        simRequest(url);
-        url = 'http://localhost:4008/WS8pallet';
-        palletRequest(url);
-        resetPath();
-    },4000);
+    var event = req.body.id;
+    currentPallet = getPallet();
+    switch (event){
+        case "PalletLoaded":{
+            var pallet = new Pallet_Agent(palletID,2,'red',5,'green',8,'blue',0);
+            pallet.setPath(searchCapability(pallet.getFrameColor(),pallet.getScreenColor(),pallet.getKeyColor()));
+            setPallet(pallet);
+            break;
+        }
+        case "Z1_Changed":{
+            url = 'http://localhost:3000/RTU/SimCNV7/services/TransZone12';
+            setTimeout(function () {
+                simRequest(url);
+            },4000);
+            break;
+        }
+        case "Z2_Changed":{
+            url = 'http://localhost:3000/RTU/SimCNV7/services/TransZone23';
+            setTimeout(function () {
+                simRequest(url);
+            },4000);
+            break;
+        }
+        case "Z3_Changed":{
+            setTimeout(function () {
+                if(currentPallet.status_ !=4){
+                    var url = 'http://localhost:3000/RTU/SimCNV7/services/TransZone35';
+                    setTimeout(function(){
+                        simRequest(url);
+                        url = 'http://localhost:4008/WS8pallet';
+                        palletRequest(url);
+                        resetPath();
+                    },4000);
+                }
+                else{
+                    url = 'http://localhost:3000/RTU/SimROB7/services/UnloadPallet';
+                    setTimeout(function () {
+                        simRequest(url);
+                    },4000);
+                }
+            },4000);
+            break;
+        }
+    }
     res.end();
 });
+
+app.post('/WS7pallet', function (req,res){
+    console.log("*********WS7************",req.body);
+    setPallet(req.body);
+    res.end();
+});
+
 request.post('http://localhost:3000/RTU/SimROB7/events/PalletLoaded/notifs',{form:{destUrl:"http://localhost:"+port+"/WS7notifs"}}, function(err,httpResponse,body){});
+request.post('http://localhost:3000/RTU/SimROB7/events/PalletUnloaded/notifs',{form:{destUrl:"http://localhost:"+port+"/WS7notifs"}}, function(err,httpResponse,body){});
+request.post('http://localhost:3000/RTU/SimCNV7/events/Z1_Changed/notifs',{form:{destUrl:"http://localhost:"+port+"/WS7notifs"}}, function(err,httpResponse,body){});
+request.post('http://localhost:3000/RTU/SimCNV7/events/Z2_Changed/notifs',{form:{destUrl:"http://localhost:"+port+"/WS7notifs"}}, function(err,httpResponse,body){});
+request.post('http://localhost:3000/RTU/SimCNV7/events/Z3_Changed/notifs',{form:{destUrl:"http://localhost:"+port+"/WS7notifs"}}, function(err,httpResponse,body){});
+request.post('http://localhost:3000/RTU/SimCNV7/events/Z5_Changed/notifs',{form:{destUrl:"http://localhost:"+port+"/WS7notifs"}}, function(err,httpResponse,body){});
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
