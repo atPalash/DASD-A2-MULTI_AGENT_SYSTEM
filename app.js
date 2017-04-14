@@ -30,17 +30,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', index);
 app.use('/users', users);
 
-var WS1 = new WS_Agent('WS1', 'paperLoader', 'http://localhost:4002/WS2pallet', 4001);
-var WS2 = new WS_Agent('WS2', 'red', 'http://localhost:4003/WS3pallet', 4002);
-var WS3 = new WS_Agent('WS3', 'green', 'http://localhost:4004/WS4pallet', 4003);
-var WS4 = new WS_Agent('WS4', 'blue', 'http://localhost:4005/WS5pallet', 4004);
-var WS5 = new WS_Agent('WS5', 'red', 'http://localhost:4006/WS6pallet', 4005);
-var WS6 = new WS_Agent('WS6', 'green', 'http://localhost:4007/WS7pallet', 4006);
-var WS8 = new WS_Agent('WS8','blue', 'http://localhost:4009/WS9pallet', 4008);
-var WS9 = new WS_Agent('WS9','red', 'http://localhost:4010/WS10pallet', 4009);
-var WS10 = new WS_Agent('WS10', 'green', 'http://localhost:4011/WS11pallet', 4010);
-var WS11 = new WS_Agent('WS11', 'blue', 'http://localhost:4012/WS12pallet', 4011);
-var WS12 = new WS_Agent('WS12', 'red', 'http://localhost:4001/WS1pallet', 4012);
+var WS1 = new WS_Agent('WS1', 'PAPERLOADER', 'http://localhost:4002/WS2pallet', 4001);
+var WS2 = new WS_Agent('WS2', 'RED', 'http://localhost:4003/WS3pallet', 4002);
+var WS3 = new WS_Agent('WS3', 'GREEN', 'http://localhost:4004/WS4pallet', 4003);
+var WS4 = new WS_Agent('WS4', 'BLUE', 'http://localhost:4005/WS5pallet', 4004);
+var WS5 = new WS_Agent('WS5', 'RED', 'http://localhost:4006/WS6pallet', 4005);
+var WS6 = new WS_Agent('WS6', 'GREEN', 'http://localhost:4007/WS7pallet', 4006);
+var WS8 = new WS_Agent('WS8','BLUE', 'http://localhost:4009/WS9pallet', 4008);
+var WS9 = new WS_Agent('WS9','RED', 'http://localhost:4010/WS10pallet', 4009);
+var WS10 = new WS_Agent('WS10', 'GREEN', 'http://localhost:4011/WS11pallet', 4010);
+var WS11 = new WS_Agent('WS11', 'BLUE', 'http://localhost:4012/WS12pallet', 4011);
+var WS12 = new WS_Agent('WS12', 'RED', 'http://localhost:4001/WS1pallet', 4012);
 WS1.runServer();
 WS2.runServer();
 WS3.runServer();
@@ -115,23 +115,19 @@ app.post('/WS7notifs', function (req, res) {
     currentPallet = getPallet();
     switch (event){
         case "PalletLoaded":{
-            var pallet = new Pallet_Agent(palletID,2,'blue',5,'red',8,'blue',0);
+            var pallet = new Pallet_Agent(palletID,2,'BLUE',5,'RED',8,'BLUE',0);
             pallet.setPath(searchCapability(pallet.getFrameColor(),pallet.getScreenColor(),pallet.getKeyColor()));
             setPallet(pallet);
             break;
         }
         case "Z1_Changed":{
             url = 'http://localhost:3000/RTU/SimCNV7/services/TransZone12';
-            setTimeout(function () {
-                simRequest(url);
-            },4000);
+            simRequest(url);
             break;
         }
         case "Z2_Changed":{
             url = 'http://localhost:3000/RTU/SimCNV7/services/TransZone23';
-            setTimeout(function () {
-                simRequest(url);
-            },4000);
+            simRequest(url);
             break;
         }
         case "Z3_Changed":{
@@ -143,15 +139,15 @@ app.post('/WS7notifs', function (req, res) {
                         url = 'http://localhost:4008/WS8pallet';
                         palletRequest(url);
                         resetPath();
-                    },4000);
+                    },2000);
                 }
                 else{
                     url = 'http://localhost:3000/RTU/SimROB7/services/UnloadPallet';
                     setTimeout(function () {
                         simRequest(url);
-                    },4000);
+                    },2000);
                 }
-            },4000);
+            },2000);
             break;
         }
     }

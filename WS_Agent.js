@@ -81,31 +81,31 @@ WS_Agent.prototype.runServer = function () {
                         if(WS_ID == 'WS1'){
                             currentPallet.path_.shift();
                             var url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone12';
-                            setTimeout(function(){simRequest(url)},4000);
+                            simRequest(url);
                         }
                         else{
                             if((destination[0] == WS_ID)||(destination[1] == WS_ID)||(destination[2] == WS_ID)||(destination[3] == WS_ID)){
                                 currentPallet.path_.shift();
                                 var url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone12';
-                                setTimeout(function(){simRequest(url)},4000);
+                                simRequest(url);
                             }
                             else{
                                 url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone14';
-                                setTimeout(function(){simRequest(url)},4000);
+                                simRequest(url);
                             }
                         }
                     }
                 }
                 else{
                     url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone14';
-                    setTimeout(function(){simRequest(url)},4000);
+                    simRequest(url);
                 }
                 break;
             }
             case "Z2_Changed": {
                 if (req.body.payload.PalletID != -1) {
                     url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone23';
-                    setTimeout(function(){simRequest(url)},4000);
+                    simRequest(url);
                 }
                 break;
             }
@@ -115,31 +115,31 @@ WS_Agent.prototype.runServer = function () {
                     switch (palletStatus){
                         case 0 : {
                             url = 'http://localhost:3000/RTU/SimROB1/services/LoadPaper';
-                            setTimeout(function(){simRequest(url)},4000);
+                            simRequest(url);
                             break;
                         }
                         case 1: {
                             var frameType = currentPallet.frameType_;
                             url = 'http://localhost:3000/RTU/SimROB'+WSnum+'/services/Draw'+frameType;
-                            setTimeout(function(){simRequest(url)},4000);
+                            simRequest(url);
                             break;
                         }
                         case 2: {
                             var screenType = currentPallet.screenType_;
                             url = 'http://localhost:3000/RTU/SimROB'+WSnum+'/services/Draw'+screenType;
-                            setTimeout(function(){simRequest(url)},4000);
+                            simRequest(url);
                             break;
                         }
                         case 3: {
                             var keyType = currentPallet.keyType_;
                             url = 'http://localhost:3000/RTU/SimROB'+WSnum+'/services/Draw'+keyType;
-                            setTimeout(function(){simRequest(url)},4000);
+                            simRequest(url);
                             break;
                         }
                         default:{
                             palletRequest(WS_Neighbour,currentPallet);
                             url = 'http://localhost:3000/RTU/SimCNV'+WSnum+'/services/TransZone35';
-                            setTimeout(function(){simRequest(url)},4000);
+                            simRequest(url);
                         }
                     }
                 }
@@ -150,7 +150,7 @@ WS_Agent.prototype.runServer = function () {
                     currentPallet = getPallet();
                     palletRequest(WS_Neighbour, currentPallet);
                     url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone45';
-                    setTimeout(function(){simRequest(url)},4000);
+                    simRequest(url);
                 }
                 break;
             }
@@ -164,9 +164,7 @@ WS_Agent.prototype.runServer = function () {
                 currentPallet.status_++;
                 palletRequest(WS_Neighbour,currentPallet);
                 url = 'http://localhost:3000/RTU/SimCNV'+WSnum+'/services/TransZone35';
-                setTimeout(function(){
-                    simRequest(url)
-                },4000);
+                simRequest(url);
                 break;
             }
             case "DrawEndExecution":{
@@ -203,23 +201,19 @@ WS_Agent.prototype.runServer = function () {
                     if(currentPallet.status_==2){
                         screenType = currentPallet.screenType_;
                         url = 'http://localhost:3000/RTU/SimROB'+WSnum+'/services/Draw'+screenType;
-                        setTimeout(function(){simRequest(url)},4000);
+                        simRequest(url);
                     }
                     if(currentPallet.status_==3){
                         keyType = currentPallet.keyType_;
                         url = 'http://localhost:3000/RTU/SimROB'+WSnum+'/services/Draw'+keyType;
-                        setTimeout(function(){simRequest(url)},4000);
+                        simRequest(url);
                     }
                     url = 'http://localhost:3000/RTU/SimCNV'+WSnum+'/services/TransZone35';
-                    setTimeout(function(){
-                        simRequest(url)
-                    },4000);
+                    simRequest(url);
                 }
                 else{
                     url = 'http://localhost:3000/RTU/SimCNV'+WSnum+'/services/TransZone35';
-                    setTimeout(function(){
-                        simRequest(url)
-                    },4000);
+                    simRequest(url);
                 }
                 palletRequest(WS_Neighbour,currentPallet);
                 break;
@@ -244,6 +238,7 @@ WS_Agent.prototype.runServer = function () {
         request.post('http://localhost:3000/RTU/SimCNV'+WSnum+'/events/Z5_Changed/notifs',{form:{destUrl:"http://localhost:"+port+"/"+WS+"notifs"}}, function(err,httpResponse,body){});
         request.post('http://localhost:3000/RTU/SimROB'+WSnum+'/events/DrawStartExecution/notifs',{form:{destUrl:"http://localhost:"+port+"/"+WS+"notifs"}}, function(err,httpResponse,body){});
         request.post('http://localhost:3000/RTU/SimROB'+WSnum+'/events/DrawEndExecution/notifs',{form:{destUrl:"http://localhost:"+port+"/"+WS+"notifs"}}, function(err,httpResponse,body){});
+        request.post('http://localhost:3000/RTU/SimROB'+WSnum+'/services/ChangePen'+this.capability_,{form:{destUrl:"http://localhost"}}, function(err,httpResponse,body){});
     }
     else{
         request.post('http://localhost:3000/RTU/SimCNV'+WSnum+'/events/Z1_Changed/notifs',{form:{destUrl:"http://localhost:"+port+"/"+WS+"notifs"}}, function(err,httpResponse,body){});
