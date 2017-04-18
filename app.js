@@ -202,14 +202,6 @@ app.post('/WS7notifs', function (req, res) {
                                 resetPath();
                             }
                             else{
-                                // connection.query('UPDATE pallet_info SET pallet_status = "0" where pallet_id = "' + palletID + '" ',function (err) {
-                                //     if (err) {
-                                //         console.error(err);
-                                //     }
-                                //     else {
-                                //         console.log(' The status of Pallet ' + palletID + ' Changed to 0');
-                                //     }
-                                // });
                                 url = 'http://localhost:3000/RTU/SimROB7/services/UnloadPallet';
                                 simRequest(url);
 
