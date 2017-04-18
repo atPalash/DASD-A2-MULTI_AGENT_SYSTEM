@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3503b76b-5390-415a-97e3-fded4b04cd1c" name="Default" comment="database incorporated with elimination of Z3 &amp; Z4 event collision at same WS">
+    <list default="true" id="3503b76b-5390-415a-97e3-fded4b04cd1c" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/index.js" afterPath="$PROJECT_DIR$/routes/index.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/users.js" afterPath="$PROJECT_DIR$/routes/users.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/views/index.ejs" afterPath="$PROJECT_DIR$/views/index.ejs" />
     </list>
     <ignored path="DASD-assgnment2.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -238,7 +237,7 @@
       <workItem from="1491757258742" duration="12585000" />
       <workItem from="1492424688320" duration="1079000" />
       <workItem from="1492471101217" duration="608000" />
-      <workItem from="1492498252109" duration="2101000" />
+      <workItem from="1492498252109" duration="2222000" />
     </task>
     <task id="LOCAL-00001" summary="database incorporated with elimination of Z3 &amp; Z4 event collision at same WS">
       <created>1492471594404</created>
@@ -247,11 +246,18 @@
       <option name="project" value="LOCAL" />
       <updated>1492471594404</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="database incorporated with elimination of Z3 &amp; Z4 event collision at same WS">
+      <created>1492500545101</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1492500545101</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="28525000" />
+    <option name="totallyTimeSpent" value="28646000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="0" width="697" height="735" extended-state="0" />
