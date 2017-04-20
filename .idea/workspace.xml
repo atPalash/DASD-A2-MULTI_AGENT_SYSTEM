@@ -244,7 +244,7 @@
       <workItem from="1491740819827" duration="12152000" />
       <workItem from="1491757258742" duration="12585000" />
       <workItem from="1492600803333" duration="35588000" />
-      <workItem from="1492674363689" duration="9964000" />
+      <workItem from="1492674363689" duration="9972000" />
     </task>
     <task id="LOCAL-00001" summary="Decentralised Multi agent system">
       <created>1492650051354</created>
@@ -267,11 +267,18 @@
       <option name="project" value="LOCAL" />
       <updated>1492685135903</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Decentralised Multi agent system-timing and busy Stat problem">
+      <created>1492685169441</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1492685169441</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="70289000" />
+    <option name="totallyTimeSpent" value="70297000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
