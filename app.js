@@ -30,7 +30,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', index);
 app.use('/users', users);
 
-var WS1 = new WS_Agent('WS1', 'PAPERLOADED', 'http://localhost:4002/WS2pallet', 4001);
+var WS1 = new WS_Agent('WS1', 'PAPERLOADER', 'http://localhost:4002/WS2pallet', 4001);
 var WS2 = new WS_Agent('WS2', 'RED', 'http://localhost:4003/WS3pallet', 4002);
 var WS3 = new WS_Agent('WS3', 'GREEN', 'http://localhost:4004/WS4pallet', 4003);
 var WS4 = new WS_Agent('WS4', 'BLUE', 'http://localhost:4005/WS5pallet', 4004);
@@ -53,7 +53,7 @@ WS10.runServer();
 WS11.runServer();
 WS12.runServer();
 var WS = [WS1,WS2,WS3,WS4,WS5,WS6,WS8,WS9,WS10,WS11,WS12];
-var path = [[WS1.getName()]];
+var pathPallet = [[WS1.getName()]];
 var framePath = [];
 var screenPath = [];
 var keyPath = [];
@@ -73,17 +73,17 @@ function searchCapability(frameColor, screenColor, keyColor){
             keyPath.push(keyWS);
         }
     }
-    path.push(framePath);
-    path.push(screenPath);
-    path.push(keyPath);
-    return path;
+    pathPallet.push(framePath);
+    pathPallet.push(screenPath);
+    pathPallet.push(keyPath);
+    return pathPallet;
 }
 function resetPath(){
     framePath = [];
     screenPath = [];
     keyPath = [];
-    path = [[WS1.getName()]];
-    return path;
+    pathPallet = [[WS1.getName()]];
+    return pathPallet;
 }
 function simRequest(url) {
     request({
@@ -93,41 +93,69 @@ function simRequest(url) {
         headers:{'Content-Type':'application/json'}
     },function (err, res, body) {});
 }
-function palletRequest(url) {
-    request({
-        url: url,
-        method: "POST",
-        body: JSON.stringify(getPallet()),
-        headers:{'Content-Type':'application/json'}
-    },function (err, res, body) {});
-}
+// function palletRequest(url) {
+//     request({
+//         url: url,
+//         method: "POST",
+//         body: JSON.stringify(getPallet()),
+//         headers:{'Content-Type':'application/json'}
+//     },function (err, res, body) {});
+// }
+
 var currentPallet;
 function setPallet(pallet) {
     currentPallet = pallet;
+    console.log('*********Palletdata**********',currentPallet);
 }
 function getPallet() {
     return currentPallet;
 }
-var palletPort=0;
-function setPalletPort(port) {
-    palletPort = port;
+var currentOrder;
+function setOrder(order) {
+    currentOrder = order;
 }
-function getPalletPort() {
-    return palletPort;
+function getOrder() {
+    return currentOrder;
 }
-var i = 1;
+
+request({
+    url: 'http://localhost:3500/orders',
+    method: "GET",
+},function (err, res, body) {
+    console.log("*********request for order***********",body);
+});
+
+app.post('/WS7orders', function (req, res) {
+    console.log(req.body);
+    setOrder(req.body);
+    var url_in = 'http://localhost:3000/RTU/SimROB7/services/LoadPallet';
+    setTimeout(function () {
+        simRequest(url_in);
+    }, 1000);
+    res.end();
+});
+
+var count = 1;
 app.post('/WS7notifs', function (req, res) {
     var palletID = req.body.payload.PalletID;
     var event = req.body.id;
-    currentPallet = getPallet();
+    var currentOrder = getOrder();
+    var quantity = currentOrder.quantity;
+
     switch (event){
         case "PalletLoaded":{
-            var pallet = new Pallet_Agent(palletID,2,'BLUE',5,'GREEN',8,'RED',0, 5000+i);
-            i++;
-            setPalletPort(pallet.getPort());
+            if (count < quantity) {
+                var url_in = 'http://localhost:3000/RTU/SimROB7/services/LoadPallet';
+                setTimeout(function () {
+                    simRequest(url_in);
+                }, 15000);
+            }
+            var pallet = new Pallet_Agent(palletID,currentOrder.orderID,currentOrder.frame,currentOrder.framecolor,currentOrder.screen,currentOrder.screencolor,currentOrder.keyboard,currentOrder.keyboardcolor,0, 5000+count);
             pallet.setPath(searchCapability(pallet.getFrameColor(),pallet.getScreenColor(),pallet.getKeyColor()));
-            pallet.runServer();
             setPallet(pallet);
+            pallet.runServer();
+            resetPath();
+            count++;
             break;
         }
         case "Z1_Changed":{
@@ -144,18 +172,14 @@ app.post('/WS7notifs', function (req, res) {
             setTimeout(function () {
                 var currentPallet = getPallet();
                 if(currentPallet.status_ !=4){
-                    var url = 'http://localhost:3000/RTU/SimCNV7/services/TransZone35';
+                    url = 'http://localhost:3000/RTU/SimCNV7/services/TransZone35';
                     simRequest(url);
-                    //console.log(getPalletPort());
-                    url = 'http://localhost:'+getPalletPort()+'/'+palletID+'newPallet';
-                    palletRequest(url);
-                    resetPath();
                 }
                 else{
                     url = 'http://localhost:3000/RTU/SimROB7/services/UnloadPallet';
                     simRequest(url);
                 }
-            },50);
+            },1000);
             break;
         }
     }

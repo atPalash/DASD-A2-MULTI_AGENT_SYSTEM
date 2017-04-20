@@ -1,11 +1,169 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-  </body>
+
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The above 3 meta tags *must* come first in the head; any other head
+       content must come *after* these tags -->
+  <title>FIS Assignment-1</title>
+  <!-- Bootstrap -->
+  <link href="stylesheets/bootstrap.min.css" rel="stylesheet">
+  <link href="stylesheets/bootstrap-theme.min.css" rel="stylesheet">
+  <link href="stylesheets/mystyles.css" rel="stylesheet">
+  <link href="stylesheets/font-awesome.min.css" rel="stylesheet">
+  <link href="stylesheets/bootstrap-social.css" rel="stylesheet">
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+</head>
+
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" ui-sref="app"><img src="images/tut-logo.jpg" style="width:100px;height:40px;float: left;"></a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li class="active"><a>
+                        <span class="glyphicon glyphicon-home"
+                              aria-hidden="true"></span> Home</a></li>
+        <li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<header class="jumbotron">
+
+  <div class="container">
+    <div class="row row-header">
+      <div class="col-xs-12 col-sm-4 col-sm-push-8">
+        <h1>DASD Assignment-2</h1>
+        <p style="padding:40px;"></p>
+
+      </div>
+      <div class="col-xs-12 col-sm-8 col-sm-pull-4">
+        <form class="form-horizontal" role="form" action="/orders" method="post">
+          <label for="Order Details" class="col-sm-8"><h3><i>Order Details</i></h3></label>
+          <div class="col-sm-8">
+            <label for="frame type" class="col-sm-4">Frame-type</label>
+            <div class = "col-sm-6">
+              <div class="radio">
+                <div class="col-sm-4">
+                  <label class="radio-inline"><input type="radio" name="frame" value="1"><a><img src="images/frame1.jpg" height=40 width=40></a>Frame-1</label>
+                </div>
+                <div class="col-sm-4">
+                  <label class="radio-inline"><input type="radio" name="frame" value="2"><a><img src="images/frame2.jpg" height=40 width=40></a>Frame-2</a></label>
+                </div>
+                <div class="col-sm-4">
+                  <label class="radio-inline"><input type="radio" name="frame" value="3"><a><img src="images/frame3.jpg" height=40 width=40></a>Frame-3</a></label>
+                </div>
+              </div>
+            </div>
+            <label for="frame color" class="col-sm-4">Frame-color</label>
+            <div class="col-sm-6">
+              <select name="framecolor" class="form-control">
+                <option value="RED">Red</option>
+                <option value="GREEN">Green</option>
+                <option value="BLUE">Blue</option>
+              </select>
+            </div>
+            <label for="screen type" class="col-sm-4">Screen-type</label>
+            <div class = "col-sm-6">                                    <div class="radio">
+                <div class="col-sm-4">
+                  <label class="radio-inline"><input type="radio" name="screen" value="4"><a><img src="images/screen1.jpg" height=40 width=40></a>Screen-1</label>
+                </div>
+                <div class="col-sm-4">
+                  <label class="radio-inline"><input type="radio" name="screen" value="5"><a><img src="images/screen2.jpg" height=40 width=40></a>Screen-2</a></label>
+                </div>
+                <div class="col-sm-4">
+                  <label class="radio-inline"><input type="radio" name="screen" value="6"><a><img src="images/screen3.jpg" height=40 width=40></a>Screen-3</a></label>
+                </div>
+              </div>
+            </div>
+            <label for="screen color" class="col-sm-4">Screen-color</label>
+            <div class="col-sm-6">
+              <select name="screencolor" class="form-control">
+                <option value="RED">Red</option>
+                <option value="GREEN">Green</option>
+                <option value="BLUE">Blue</option>
+              </select>
+            </div>
+            <label for="key type" class="col-sm-4">Keyboard-type</label>
+            <div class = "col-sm-6">
+              <div class="radio">
+                <div class="col-sm-4">
+                  <label class="radio-inline"><input type="radio" name="key" value="7"><a><img src="images/key1.jpg" height=40 width=40></a>Keyboard-1</label>
+                </div>
+                <div class="col-sm-4">
+                  <label class="radio-inline"><input type="radio" name="key" value="8"><a><img src="images/key2.jpg" height=40 width=40></a>Keyboard-2</a></label>
+                </div>
+                <div class="col-sm-4">
+                  <label class="radio-inline"><input type="radio" name="key" value="9"><a><img src="images/key3.jpg" height=40 width=40></a>Keyboard-3</a></label>
+                </div>
+              </div>
+            </div>
+            <label for="key color" class="col-sm-4">Keyboard-color</label>
+            <div class="col-sm-6">
+              <select name="keycolor" class="form-control">
+                <option value="RED">Red</option>
+                <option value="GREEN">Green</option>
+                <option value="BLUE">Blue</option>
+              </select>
+            </div>
+            <label for="quantity" class="col-sm-4">Quantity</label>
+            <div class="col-sm-6">
+              <input type="number" class="form-control" name="quantity" placeholder="quantity" required>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <input type="submit" class="btn btn-warning"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+<footer class="row-footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-6 col-sm-5">
+        <h5>Our Address</h5>
+        <address>
+          Tampere University of Technology<br>
+          <i class="fa fa-phone"></i>: +0XXXXXXXXXX<br>
+          <i class="fa fa-fax"></i>: +XXXXXXXXXXXX<br>
+          <i class="fa fa-envelope"></i>:
+          <a href="mailto:XXXX@XXXX.XXXX">XXX@XXX.com</a>
+        </address>
+      </div>
+    </div>
+  </div>
+</footer>
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="javascripts/bootstrap.min.js"></script>
+<script>
+  function openStatus(){
+
+  }
+</script>
+</body>
+
 </html>
