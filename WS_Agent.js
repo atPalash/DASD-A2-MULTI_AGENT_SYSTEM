@@ -36,13 +36,25 @@ WS_Agent.prototype.runServer = function () {
     function getPallet() {
         return currentPallet;
     }
-
+    var statusBusy = false;
+    function setStatusBusy() {
+        statusBusy = true;
+    }
+    function setStatusFree() {
+        statusBusy = false;
+    }
+    function getBusyStatus() {
+        return statusBusy;
+    }
     var priority = false;
     function setPriority() {
         priority = true;
     }
     function resetPriority() {
         priority = false;
+    }
+    function getPriority() {
+        return priority;
     }
 
     function simRequest(url) {
@@ -63,83 +75,92 @@ WS_Agent.prototype.runServer = function () {
         setTimeout(function () {
             switch (event) {
                 case "Z1_Changed": {
-                    request({
-                        url: 'http://localhost:3000/RTU/'+sender+'/data/P3',
-                        method: "GET",
-                    },function (err, res, body) {
-                        console.log(WS_ID, '*****Status*****', parseInt(body.substr(5,6)));
-                        if(parseInt(body.substr(5,6))==0){
-                            if ((WS_ID=='WS1')||((palletID != -1)&&(palletID==currentPallet.palletID_))) {
-                                if((WS_ID!='WS1')||(WS_ID=='WS7')){
-                                    var palletStatus = currentPallet.status_;
-                                    switch(palletStatus){
-                                        case 0: {
-                                            if(WS_ID!='WS1'){
-                                                url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone14';
-                                                simRequest(url);
-                                            }
-                                            else {
-                                                url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone12';
-                                                simRequest(url);
-                                            }
-                                            break;
-                                        }
-                                        case 1:{
-                                            if(currentPallet.path_[1].indexOf(WS_ID)==-1){
-                                                url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone14';
-                                                simRequest(url);
-                                            }
-                                            else{
-                                                url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone12';
-                                                simRequest(url);
-                                            }
-                                            break;
-                                        }
-                                        case 2:{
-                                            if(currentPallet.path_[2].indexOf(WS_ID)==-1){
-                                                url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone14';
-                                                simRequest(url);
-                                            }
-                                            else{
-                                                url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone12';
-                                                simRequest(url);
-                                            }
-                                            break;
-                                        }
-                                        case 3:{
-                                            if(currentPallet.path_[3].indexOf(WS_ID)==-1){
-                                                url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone14';
-                                                simRequest(url);
-                                            }
-                                            else{
-                                                url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone12';
-                                                simRequest(url);
-                                            }
-                                            break;
-                                        }
-                                        default:{
+                    if(!getBusyStatus()){
+                        console.log("*********",WS_ID,"*************",getBusyStatus());
+                        if ((palletID != -1)&&(palletID==currentPallet.palletID_)) {
+                            console.log('inside',WS_ID);
+                            if((WS_ID!='WS1')&&(WS_ID!='WS7')){
+                                palletStatus = currentPallet.status_;
+                                switch(palletStatus){
+                                    case 0: {
+                                        //if((WS_ID!='WS1')||(WS_ID!='WS7')){
+                                            url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone14';
+                                            simRequest(url);
+                                        //}
+                                        // else {
+                                        //     this.busyStatus_ = true;
+                                        //     console.log("*********",WS_ID,"*************",this.busyStatus_);
+                                        //     url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone12';
+                                        //     simRequest(url);
+                                        // }
+                                        break;
+                                    }
+                                    case 1:{
+                                        if(currentPallet.path_[1].indexOf(WS_ID)==-1){
                                             url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone14';
                                             simRequest(url);
                                         }
+                                        else{
+                                            setStatusBusy();
+                                            console.log("*********",WS_ID,"*************",getBusyStatus());
+                                            url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone12';
+                                            simRequest(url);
+                                        }
+                                        break;
+                                    }
+                                    case 2:{
+                                        if(currentPallet.path_[2].indexOf(WS_ID)==-1){
+                                            url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone14';
+                                            simRequest(url);
+                                        }
+                                        else{
+                                            setStatusBusy();
+                                            console.log("*********",WS_ID,"*************",getBusyStatus());
+                                            url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone12';
+                                            simRequest(url);
+                                        }
+                                        break;
+                                    }
+                                    case 3:{
+                                        if(currentPallet.path_[3].indexOf(WS_ID)==-1){
+                                            url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone14';
+                                            simRequest(url);
+                                        }
+                                        else{
+                                            setStatusBusy();
+                                            console.log("*********",WS_ID,"*************",getBusyStatus());
+                                            url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone12';
+                                            simRequest(url);
+                                        }
+                                        break;
+                                    }
+                                    default:{
+                                        url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone14';
+                                        simRequest(url);
                                     }
                                 }
-                                else{
-                                    url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone12';
-                                    simRequest(url);
-                                }
-                            }
-                        }
-                        else{
-                            if(WS_ID!='WS1'){
-                                url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone14';
-                                simRequest(url);
                             }
                             else{
                                 url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone12';
                                 simRequest(url);
                             }
+
                         }
-                    });
+                        // else{
+                        //     if(WS_ID!='WS1'){
+                        //         url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone14';
+                        //         simRequest(url);
+                        //     }
+                        //     else{
+                        //         url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone12';
+                        //         simRequest(url);
+                        //     }
+                        // }
+                    }
+                    else{
+                        url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone14';
+                        simRequest(url);
+                    }
                     break;
                 }
                 case "Z2_Changed": {
@@ -151,53 +172,75 @@ WS_Agent.prototype.runServer = function () {
                 }
                 case "Z3_Changed": {
                     if ((palletID != -1)&&(palletID==currentPallet.palletID_)) {
-                        var palletStatus = currentPallet.status_;
-                        switch (palletStatus){
-                            case 0 : {
-                                var url = 'http://localhost:3000/RTU/SimROB1/services/LoadPaper';
-                                simRequest(url);
-                                break;
-                            }
-                            case 1: {
-                                var frameType = currentPallet.frameType_;
-                                url = 'http://localhost:3000/RTU/SimROB'+WSnum+'/services/Draw'+frameType;
-                                simRequest(url);
-                                break;
-                            }
-                            case 2: {
-                                var screenType = currentPallet.screenType_;
-                                url = 'http://localhost:3000/RTU/SimROB'+WSnum+'/services/Draw'+screenType;
-                                simRequest(url);
-                                break;
-                            }
-                            case 3: {
-                                var keyType = currentPallet.keyType_;
-                                url = 'http://localhost:3000/RTU/SimROB'+WSnum+'/services/Draw'+keyType;
-                                simRequest(url);
-                                break;
-                            }
-                            default:{
-                                url = 'http://localhost:3000/RTU/SimCNV'+WSnum+'/services/TransZone35';
-                                simRequest(url);
-                            }
+                        if(!getPriority()){
+                            var timeOut = 10;
                         }
+                        else{
+                            timeOut = 1000;
+                        }
+                        setTimeout(function () {
+                            var palletStatus = currentPallet.status_;
+                            switch (palletStatus){
+                                case 0 : {
+                                    setStatusBusy();
+                                    console.log("*********",WS_ID,"*************",getBusyStatus());
+                                    var url = 'http://localhost:3000/RTU/SimROB1/services/LoadPaper';
+                                    simRequest(url);
+                                    break;
+                                }
+                                case 1: {
+                                    setStatusBusy();
+                                    console.log("*********",WS_ID,"*************",getBusyStatus());
+                                    var frameType = currentPallet.frameType_;
+                                    url = 'http://localhost:3000/RTU/SimROB'+WSnum+'/services/Draw'+frameType;
+                                    simRequest(url);
+                                    break;
+                                }
+                                case 2: {
+                                    setStatusBusy();
+                                    console.log("*********",WS_ID,"*************",getBusyStatus());
+                                    var screenType = currentPallet.screenType_;
+                                    url = 'http://localhost:3000/RTU/SimROB'+WSnum+'/services/Draw'+screenType;
+                                    simRequest(url);
+                                    break;
+                                }
+                                case 3: {
+                                    setStatusBusy();
+                                    console.log("*********",WS_ID,"*************",getBusyStatus());
+                                    var keyType = currentPallet.keyType_;
+                                    url = 'http://localhost:3000/RTU/SimROB'+WSnum+'/services/Draw'+keyType;
+                                    simRequest(url);
+                                    break;
+                                }
+                                default:{
+                                    setStatusBusy();
+                                    console.log("*********",WS_ID,"*************",getBusyStatus());
+                                    url = 'http://localhost:3000/RTU/SimCNV'+WSnum+'/services/TransZone35';
+                                    simRequest(url);
+                                }
+                            }
+                        },timeOut);
                     }
                     break;
                 }
                 case "Z4_Changed": {
                     if ((palletID != -1)) {
+                        setPriority();
                         setTimeout(function () {
-                            url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone45';
+                            var url = 'http://localhost:3000/RTU/'+sender+'/services/TransZone45';
                             simRequest(url);
                         },100);
                     }
                     break;
                 }
                 case "Z5_Changed": {
+                    resetPriority();
+                    setStatusFree();
+                    console.log("*********",WS_ID,"*************",getBusyStatus());
                     /*if ((palletID != -1)&&(palletID==currentPallet.palletID_)) {
-                        setStatusFree();
-                        console.log("*******WS STATUS -Z5",WS_ID, getStatus());
-                    }*/
+                     setStatusFree();
+                     console.log("*******WS STATUS -Z5",WS_ID, getStatus());
+                     }*/
                     break;
                 }
                 default:{

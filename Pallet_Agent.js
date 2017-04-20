@@ -106,40 +106,20 @@ Pallet_Agent.prototype.runServer = function () {
 
         switch (event){
             case "Z1_Changed": {
-                request({
-                    url: 'http://localhost:3000/RTU/'+sender+'/data/P3',
-                    method: "GET",
-                },function (err, res, body) {
-                    //console.log(WS_ID, '*****Status*****', parseInt(body.substr(5,6)));
-                    if(parseInt(body.substr(5,6))==0){
-                        request({
-                            url: 'http://localhost:3000/RTU/'+sender+'/data/P4',
-                            method: "GET",
-                        },function (err, res, body) {
-                            //console.log(WS_ID, '*****Status*****', parseInt(body.substr(5,6)));
-                            if(parseInt(body.substr(5,6))==0) {
-                                if ((req.body.payload.PalletID != -1) && (req.body.payload.PalletID == palletID)) {
-                                    if ((WS_ID != 'WS1') || (WS_ID != 'WS7')) {
-                                        setTimeout(function () {
-                                            var url = 'http://localhost:40' + WS_Num + '/' + WS_ID + 'pallet';
-                                            palletRequest(url);
-                                        }, 10);
-                                    }
-                                }
-                            }
-                            else{
-                                if ((req.body.payload.PalletID != -1) && (req.body.payload.PalletID == palletID)) {
-                                    if ((WS_ID != 'WS1') || (WS_ID != 'WS7')) {
-                                        setTimeout(function () {
-                                            var url = 'http://localhost:40' + WS_Num + '/' + WS_ID + 'pallet';
-                                            palletRequest(url);
-                                        }, 100);
-                                    }
-                                }
-                            }
-                        });
-                    }
-                });
+                if ((req.body.payload.PalletID != -1) && (req.body.payload.PalletID == palletID)) {
+                    //if ((WS_ID != 'WS1') && (WS_ID != 'WS7')) {
+                        setTimeout(function () {
+                            var url = 'http://localhost:40' + WS_Num + '/' + WS_ID + 'pallet';
+                            palletRequest(url);
+                        }, 10);
+                    //}
+                    // else{
+                    //     setTimeout(function () {
+                    //         var url = 'http://localhost:3000/RTU/SimCNV' + WSTempNum + '/services/TransZone23';
+                    //         simRequest(url);
+                    //     }, 10);
+                    // }
+                }
                 break;
             }
             case "Z2_Changed": {
@@ -176,75 +156,71 @@ Pallet_Agent.prototype.runServer = function () {
                 break;
             }
             case "DrawEndExecution":{
-                if ((req.body.payload.PalletID != -1)&&(req.body.payload.PalletID == palletID)) {
-                    var recipe = parseInt(req.body.payload.Recipe);
-                    switch (recipe){
-                        case 1:
-                        case 2:
-                        case 3:{
-                            currentPallet.frameType_ = "done" + recipe;
-                            currentPallet.status_ = 2;
-                            break;
-                        }
-                        case 4:
-                        case 5:
-                        case 6:{
-                            currentPallet.screenType_ = "done" + recipe;
-                            currentPallet.status_=3;
-                            break;
-                        }
-                        case 7:
-                        case 8:
-                        case 9:{
-                            currentPallet.keyType_ = "done" + recipe;
-                            currentPallet.status_ = 4;
-                            break;
-                        }
-                    }
-                    var palletStatus = currentPallet.status_;
-                    switch (palletStatus) {
-                        case 2: {
-                            if (currentPallet.path_[2].indexOf(WS_ID) > -1) {
-                                var screenType = currentPallet.screenType_;
-                                url = 'http://localhost:3000/RTU/SimROB' + WSTempNum + '/services/Draw' + screenType;
-                                simRequest(url);
-                                url = 'http://localhost:40'+WS_Num+'/'+WS_ID+'pallet';
-                                palletRequest(url);
+                setTimeout(function () {
+                    if ((req.body.payload.PalletID != -1)&&(req.body.payload.PalletID == palletID)) {
+                        var recipe = parseInt(req.body.payload.Recipe);
+                        switch (recipe){
+                            case 1:
+                            case 2:
+                            case 3:{
+                                currentPallet.frameType_ = "done" + recipe;
+                                currentPallet.status_ = 2;
+                                break;
                             }
-                            break;
-                        }
-                        case 3: {
-                            if (currentPallet.path_[3].indexOf(WS_ID) > -1) {
-                                var keyType = currentPallet.keyType_;
-                                url = 'http://localhost:3000/RTU/SimROB' + WSTempNum + '/services/Draw' + keyType;
-                                simRequest(url);
-                                url = 'http://localhost:40'+WS_Num+'/'+WS_ID+'pallet';
-                                palletRequest(url);
+                            case 4:
+                            case 5:
+                            case 6:{
+                                currentPallet.screenType_ = "done" + recipe;
+                                currentPallet.status_=3;
+                                break;
                             }
-                            break;
+                            case 7:
+                            case 8:
+                            case 9:{
+                                currentPallet.keyType_ = "done" + recipe;
+                                currentPallet.status_ = 4;
+                                break;
+                            }
                         }
-                        default:{
-                            request({
-                                url: 'http://localhost:3000/RTU/SimCNV'+ WSTempNum+'/data/P4',
-                                method: "GET",
-                            },function (err, res, body) {
-                                if(parseInt(body.substr(5,6))==0){
-                                    setTimeout(function () {
-                                        url = 'http://localhost:3000/RTU/SimCNV' + WSTempNum + '/services/TransZone35';
-                                        simRequest(url);
-                                    },500)
+                        var palletStatus = currentPallet.status_;
+                        switch (palletStatus) {
+                            case 2: {
+                                if (currentPallet.path_[2].indexOf(WS_ID) > -1) {
+                                    var screenType = currentPallet.screenType_;
+                                    url = 'http://localhost:3000/RTU/SimROB' + WSTempNum + '/services/Draw' + screenType;
+                                    simRequest(url);
+                                    url = 'http://localhost:40'+WS_Num+'/'+WS_ID+'pallet';
+                                    palletRequest(url);
                                 }
                                 else{
-                                    setTimeout(function () {
-                                        url = 'http://localhost:3000/RTU/SimCNV' + WSTempNum + '/services/TransZone35';
-                                        simRequest(url);
-                                    },2000)
+                                    url = 'http://localhost:3000/RTU/SimCNV' + WSTempNum + '/services/TransZone35';
+                                    simRequest(url);
                                 }
-                            });
-
+                                break;
+                            }
+                            case 3: {
+                                if (currentPallet.path_[3].indexOf(WS_ID) > -1) {
+                                    var keyType = currentPallet.keyType_;
+                                    url = 'http://localhost:3000/RTU/SimROB' + WSTempNum + '/services/Draw' + keyType;
+                                    simRequest(url);
+                                    url = 'http://localhost:40'+WS_Num+'/'+WS_ID+'pallet';
+                                    palletRequest(url);
+                                }
+                                else{
+                                    url = 'http://localhost:3000/RTU/SimCNV' + WSTempNum + '/services/TransZone35';
+                                    simRequest(url);
+                                }
+                                break;
+                            }
+                            default:{
+                                setTimeout(function () {
+                                    url = 'http://localhost:3000/RTU/SimCNV' + WSTempNum + '/services/TransZone35';
+                                    simRequest(url);
+                                },100)
+                            }
                         }
                     }
-                }
+                },2000);
                 break;
             }
         }
