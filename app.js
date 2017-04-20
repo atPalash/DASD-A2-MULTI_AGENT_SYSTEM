@@ -159,13 +159,17 @@ app.post('/WS7notifs', function (req, res) {
             break;
         }
         case "Z1_Changed":{
-            var url = 'http://localhost:3000/RTU/SimCNV7/services/TransZone12';
-            simRequest(url);
+            setTimeout(function () {
+                var url = 'http://localhost:3000/RTU/SimCNV7/services/TransZone12';
+                simRequest(url);
+            },100);
             break;
         }
         case "Z2_Changed":{
-            url = 'http://localhost:3000/RTU/SimCNV7/services/TransZone23';
-            simRequest(url);
+            setTimeout(function () {
+                var url = 'http://localhost:3000/RTU/SimCNV7/services/TransZone23';
+                simRequest(url);
+            },100);
             break;
         }
         case "Z3_Changed":{
@@ -179,7 +183,7 @@ app.post('/WS7notifs', function (req, res) {
                     url = 'http://localhost:3000/RTU/SimROB7/services/UnloadPallet';
                     simRequest(url);
                 }
-            },1000);
+            },500);
             break;
         }
     }
