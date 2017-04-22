@@ -60,15 +60,15 @@ var keyPath = [];
 
 function searchCapability(frameColor, screenColor, keyColor){
     for(var i=0; i < WS.length; i++){
-        if(WS[i].getCapability() == frameColor){
+        if(WS[i].getCapability() === frameColor){
             var frameWS = WS[i].getName();
             framePath.push(frameWS);
         }
-        if(WS[i].getCapability() == screenColor){
+        if(WS[i].getCapability() === screenColor){
             var screenWS = WS[i].getName();
             screenPath.push(screenWS);
         }
-        if(WS[i].getCapability() == keyColor){
+        if(WS[i].getCapability() === keyColor){
             var keyWS = WS[i].getName();
             keyPath.push(keyWS);
         }
@@ -93,19 +93,12 @@ function simRequest(url) {
         headers:{'Content-Type':'application/json'}
     },function (err, res, body) {});
 }
-// function palletRequest(url) {
-//     request({
-//         url: url,
-//         method: "POST",
-//         body: JSON.stringify(getPallet()),
-//         headers:{'Content-Type':'application/json'}
-//     },function (err, res, body) {});
-// }
+
 
 var currentPallet;
 function setPallet(pallet) {
     currentPallet = pallet;
-    console.log('*********Palletdata**********',currentPallet);
+    //console.log('*********Palletdata**********',currentPallet);
 }
 function getPallet() {
     return currentPallet;
@@ -117,16 +110,28 @@ function setOrder(order) {
 function getOrder() {
     return currentOrder;
 }
+var statusBusy = "free";
+function setStatusBusy() {
+    statusBusy = "busy";
+}
+function setStatusFree() {
+    setTimeout(function () {
+        statusBusy = "free";
+    },10000);
+}
+function getBusyStatus() {
+    return statusBusy;
+}
 
 request({
     url: 'http://localhost:3500/orders',
     method: "GET",
 },function (err, res, body) {
-    console.log("*********request for order***********",body);
+    //console.log("*********request for order***********",body);
 });
 
 app.post('/WS7orders', function (req, res) {
-    console.log(req.body);
+    //console.log(req.body);
     setOrder(req.body);
     var url_in = 'http://localhost:3000/RTU/SimROB7/services/LoadPallet';
     setTimeout(function () {
@@ -134,7 +139,17 @@ app.post('/WS7orders', function (req, res) {
     }, 1000);
     res.end();
 });
-
+app.get('/WS7setStatusBusy', function (req, res) {
+    setStatusBusy();
+    res.end();
+});
+app.get('/WS7setStatusFree', function (req, res) {
+    setStatusFree();
+    res.end();
+});
+app.get('/WS7getStatus', function (req, res){
+    res.end(getBusyStatus());
+});
 var count = 1;
 app.post('/WS7notifs', function (req, res) {
     var palletID = req.body.payload.PalletID;
@@ -142,13 +157,15 @@ app.post('/WS7notifs', function (req, res) {
     var currentOrder = getOrder();
     var quantity = currentOrder.quantity;
 
+    //console.log('*************', currentPallet);
     switch (event){
         case "PalletLoaded":{
+            setStatusBusy();
             if (count < quantity) {
                 var url_in = 'http://localhost:3000/RTU/SimROB7/services/LoadPallet';
                 setTimeout(function () {
                     simRequest(url_in);
-                }, 15000);
+                }, 10000);
             }
             var pallet = new Pallet_Agent(palletID,currentOrder.orderID,currentOrder.frame,currentOrder.framecolor,currentOrder.screen,currentOrder.screencolor,currentOrder.keyboard,currentOrder.keyboardcolor,0, 5000+count);
             pallet.setPath(searchCapability(pallet.getFrameColor(),pallet.getScreenColor(),pallet.getKeyColor()));
@@ -159,32 +176,46 @@ app.post('/WS7notifs', function (req, res) {
             break;
         }
         case "Z1_Changed":{
-            setTimeout(function () {
-                var url = 'http://localhost:3000/RTU/SimCNV7/services/TransZone12';
-                simRequest(url);
-            },100);
+            /*if (palletID != -1){
+                setTimeout(function () {
+                    var url = 'http://localhost:3000/RTU/SimCNV7/services/TransZone12';
+                    simRequest(url);
+                },10);
+            }*/
             break;
         }
         case "Z2_Changed":{
-            setTimeout(function () {
-                var url = 'http://localhost:3000/RTU/SimCNV7/services/TransZone23';
-                simRequest(url);
-            },100);
+            if (palletID !== -1){
+                setTimeout(function () {
+                    var url = 'http://localhost:3000/RTU/SimCNV7/services/TransZone23';
+                    simRequest(url);
+                },10);
+            }
             break;
         }
         case "Z3_Changed":{
-            setTimeout(function () {
-                var currentPallet = getPallet();
-                if(currentPallet.status_ !=4){
-                    url = 'http://localhost:3000/RTU/SimCNV7/services/TransZone35';
-                    simRequest(url);
-                }
-                else{
-                    url = 'http://localhost:3000/RTU/SimROB7/services/UnloadPallet';
-                    simRequest(url);
-                }
-            },500);
+            if (palletID !== -1){
+                setStatusBusy();
+                setTimeout(function () {
+                    var currentPallet = getPallet();
+                    if(currentPallet.status_ !==4){
+                        var url = 'http://localhost:3000/RTU/SimCNV7/services/TransZone35';
+                        simRequest(url);
+                    }
+                    else{
+                        url = 'http://localhost:3000/RTU/SimROB7/services/UnloadPallet';
+                        simRequest(url);
+                        setStatusFree();
+                    }
+                },100);
+            }
             break;
+        }
+        case "Z5_Changed":{
+            if (palletID !== -1){
+                setStatusFree();
+                break;
+            }
         }
     }
     res.end();
