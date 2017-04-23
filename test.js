@@ -1,5 +1,2 @@
-/**
- * Created by halder on 09-Apr-17.
- */
-var data = 'SimCNV1';
-console.log(data.substr(6,2));
+var body = '{"v": 1,"q": "good","t": 1492642848719}';
+console.log(typeof parseInt(body.substring(6,7)));
